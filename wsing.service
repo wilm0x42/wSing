@@ -1,0 +1,16 @@
+[Unit]
+Description=wSing
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/wSing/
+ExecStart=/usr/bin/nohup /usr/bin/python3 /opt/wSing/main.py
+KillSignal=SIGINT
+SuccessExitStatus=SIGINT
+RemainAfterExit=no
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+
