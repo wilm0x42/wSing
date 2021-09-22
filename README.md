@@ -3,7 +3,7 @@
 RIP Groovy (and Rhythm)
 
 This is a bot intended the 8 Bit Music Theory discord server, since we need music bots
-our listening parties, where we gather to partake in submitted entries from the
+for our regular listening parties, where we gather to partake in submitted entries from the
 weekly composition competition taking place there.
 
 This code is a (lightly, so far) modified version of [this code](https://gist.github.com/vbe0201/ade9b80f2d3b64643d854938d40a0a2d)

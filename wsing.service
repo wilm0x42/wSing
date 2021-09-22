@@ -2,6 +2,7 @@
 Description=wSing
 
 [Service]
+User=cloud
 Type=simple
 WorkingDirectory=/opt/wSing/
 ExecStart=/usr/bin/nohup /usr/bin/python3 /opt/wSing/main.py
