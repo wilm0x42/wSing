@@ -412,7 +412,7 @@ class Music(commands.Cog):
         """
 
         if len(ctx.voice_state.songs) == 0:
-            return await ctx.send('Empty queue.')
+            return await ctx.send('No music, queue empty.')
 
         items_per_page = 10
         pages = math.ceil(len(ctx.voice_state.songs) / items_per_page)
