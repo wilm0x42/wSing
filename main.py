@@ -502,7 +502,7 @@ class Music(commands.Cog):
                 raise commands.CommandError('Bot is already in a voice channel.')
 
 
-bot = commands.Bot(config["command_prefix"], description='8Bot doin\' some singing')
+bot = commands.Bot(config["command_prefix"], description='8Bot doin\' some singing', case_insensitive=True)
 bot.add_cog(Music(bot))
 
 
