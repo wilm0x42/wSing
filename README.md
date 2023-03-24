@@ -11,7 +11,7 @@ by Valentin B.
 
 ## Install
 
-Meant to work with Python 3.5+
+Meant to work with Python 3.10
 
 `pip install -U discord.py pynacl youtube-dl`
 

@@ -502,12 +502,22 @@ class Music(commands.Cog):
                 raise commands.CommandError('Bot is already in a voice channel.')
 
 
-bot = commands.Bot(config["command_prefix"], description='8Bot doin\' some singing', case_insensitive=True)
-bot.add_cog(Music(bot))
+intents = discord.Intents.default()
+intents.messages = True
+intents.emojis = True
+intents.members = True
+intents.message_content = True
+
+bot = commands.Bot(config["command_prefix"],
+	description='8Bot doin\' some singing',
+	case_insensitive=True,
+	intents=intents)
 
 
 @bot.event
 async def on_ready():
     print('Logged in as:\n{0.user.name}\n{0.user.id}'.format(bot))
+    
+    await bot.add_cog(Music(bot))
 
 bot.run(config["bot_key"])
