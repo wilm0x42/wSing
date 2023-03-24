@@ -192,6 +192,10 @@ class VoiceState:
         self.skip_votes = set()
 
         self.audio_player = bot.loop.create_task(self.audio_player_task())
+        
+        # We have to keep track of this separately from just
+        # looking at self.voice, lest we run into race conditions
+        self.summon_invoked = False
 
     def __del__(self):
         self.audio_player.cancel()
@@ -306,6 +310,8 @@ class Music(commands.Cog):
 
         If no channel was specified, it joins your channel.
         """
+        
+        ctx.voice_state.summon_invoked = True
 
         if not channel and not ctx.author.voice:
             raise VoiceError('You are neither connected to a voice channel nor specified a channel to join.')
@@ -477,8 +483,12 @@ class Music(commands.Cog):
         
         await ctx.message.add_reaction('💿')
 
-        if not ctx.voice_state.voice:
+        if not ctx.voice_state.summon_invoked:
             await ctx.invoke(self._summon)
+        
+        if not ctx.voice_state.voice:
+            await ctx.send("WOAH buddy, I'm not quite ready yet-- try again in a few seconds.")
+            return
 
         async with ctx.typing():
             try:
