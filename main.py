@@ -56,8 +56,8 @@ class YTDLSource(discord.PCMVolumeTransformer):
         self.requester = ctx.author
         self.channel = ctx.channel
         self.data = data
-        
-        
+
+
         # The bulk of this is commented out since we can't find this stuff in the data for statically-hosted
         # MP3's, i.e. on 8bitweekly.xyz -- TODO: add proper "if this exists, set it" checks
         #self.uploader = data.get('uploader')
@@ -192,13 +192,16 @@ class VoiceState:
         self.skip_votes = set()
 
         self.audio_player = bot.loop.create_task(self.audio_player_task())
-        
+
         # We have to keep track of this separately from just
         # looking at self.voice, lest we run into race conditions
         self.summon_invoked = False
 
     def __del__(self):
         self.audio_player.cancel()
+
+#    def __repr__(self):
+#        return f"<VoiceState with {len(self.songs)} songs>"
 
     @property
     def loop(self):
@@ -225,15 +228,21 @@ class VoiceState:
             self.next.clear()
 
             if not self.loop:
-                # Try to get the next song within 3 minutes.
+                # Try to get the next song within 10 minutes.
                 # If no song will be added to the queue in time,
                 # the player will disconnect due to performance
                 # reasons.
                 try:
-                    async with timeout(60 * 10):  # 10 minutes
+                    async with timeout(10 * 60):  # 10 minutes
                         self.current = await self.songs.get()
                 except asyncio.TimeoutError:
-                    self.bot.loop.create_task(self.stop())
+                    await self._ctx.send("Disconnecting due to inactivity.")
+                    
+                    # I wonder if doing these in this order creates a
+                    # potential race condition. No no, that'd be silly.
+                    # ...unless?
+                    await self.stop()
+                    del self.bot.cogs['Music'].voice_states[self._ctx.guild.id]
                     return
 
             self.current.source.volume = self._volume
@@ -310,7 +319,7 @@ class Music(commands.Cog):
 
         If no channel was specified, it joins your channel.
         """
-        
+
         ctx.voice_state.summon_invoked = True
 
         if not channel and not ctx.author.voice:
@@ -480,12 +489,12 @@ class Music(commands.Cog):
         This command automatically searches from various sites if no URL is provided.
         A list of these sites can be found here: https://rg3.github.io/youtube-dl/supportedsites.html
         """
-        
+
         await ctx.message.add_reaction('💿')
 
         if not ctx.voice_state.summon_invoked:
             await ctx.invoke(self._summon)
-        
+
         if not ctx.voice_state.voice:
             await ctx.send("WOAH buddy, I'm not quite ready yet-- try again in a few seconds.")
             return
@@ -520,16 +529,18 @@ intents.emojis = True
 intents.members = True
 intents.message_content = True
 
-bot = commands.Bot(config["command_prefix"],
-	description='8Bot doin\' some singing',
-	case_insensitive=True,
-	intents=intents)
+bot = commands.Bot(
+    config["command_prefix"],
+    description='8Bot doin\' some singing',
+    case_insensitive=True,
+    intents=intents,
+)
 
 
 @bot.event
 async def on_ready():
     print('Logged in as:\n{0.user.name}\n{0.user.id}'.format(bot))
-    
+
     await bot.add_cog(Music(bot))
 
 bot.run(config["bot_key"])
